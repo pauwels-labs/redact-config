@@ -10,6 +10,7 @@ pub trait Configurator {
     fn get_bool(&self, key: &str) -> Result<bool, ConfigError>;
     fn get_table(&self, key: &str) -> Result<HashMap<String, Value>, ConfigError>;
     fn get_array(&self, key: &str) -> Result<Vec<Value>, ConfigError>;
+    fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T, ConfigError>;
 }
 
 pub fn new() -> Result<impl Configurator, ConfigError> {
@@ -40,5 +41,8 @@ impl Configurator for Config {
     }
     fn get_array(&self, key: &str) -> Result<Vec<Value>, ConfigError> {
         Config::get_array(self, key)
+    }
+    fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T, ConfigError> {
+        Config::try_into(self)
     }
 }
