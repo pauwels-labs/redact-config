@@ -13,9 +13,9 @@ pub trait Configurator {
     fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T, ConfigError>;
 }
 
-pub fn new() -> Result<impl Configurator, ConfigError> {
+pub fn new(prefix: &str) -> Result<impl Configurator, ConfigError> {
     Config::default()
-        .merge(config::Environment::with_prefix("REDACT").separator("_"))?
+        .merge(config::Environment::with_prefix(prefix).separator("_"))?
         .merge(config::File::with_name("config"))
         .map(|c| c.to_owned())
 }
