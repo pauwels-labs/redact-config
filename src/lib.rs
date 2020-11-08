@@ -15,8 +15,8 @@ pub trait Configurator {
 
 pub fn new(prefix: &str) -> Result<impl Configurator, ConfigError> {
     Config::default()
-        .merge(config::Environment::with_prefix(prefix).separator("_"))?
-        .merge(config::File::with_name("config"))
+        .merge(config::File::with_name("config"))?
+        .merge(config::Environment::with_prefix(prefix).separator("_"))
         .map(|c| c.to_owned())
 }
 
