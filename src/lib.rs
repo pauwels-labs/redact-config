@@ -1,4 +1,5 @@
-use config::{Config, ConfigError, Value};
+pub use config::ConfigError;
+use config::{Config, Value};
 use serde::Deserialize;
 use std::collections::HashMap;
 
