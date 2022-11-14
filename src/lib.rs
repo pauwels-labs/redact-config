@@ -19,9 +19,9 @@ pub fn new(prefix: &str) -> Result<impl Configurator, ConfigError> {
     let paths = fs::read_dir("./config")
         .map_err(|_| ConfigError::Message("Could not read directory at ./config".to_owned()))?
         .filter_map(|result| result.ok())
-        .map(|de| de.file_name());
+        .map(|de| de.path());
     for path in paths {
-        config_builder = match path.to_str() {
+        config_builder = match path.as_path().to_str() {
             Some(s) => {
                 if s.ends_with(".yaml") {
                     config_builder.add_source(config::File::with_name(s))
