@@ -22,7 +22,13 @@ pub fn new(prefix: &str) -> Result<impl Configurator, ConfigError> {
         .map(|de| de.file_name());
     for path in paths {
         config_builder = match path.to_str() {
-            Some(s) => config_builder.add_source(config::File::with_name(s)),
+            Some(s) => {
+                if s.ends_with(".yaml") {
+                    config_builder.add_source(config::File::with_name(s))
+                } else {
+                    config_builder
+                }
+            }
             None => config_builder,
         };
     }
