@@ -1,7 +1,7 @@
 pub use config::ConfigError;
 use config::{Config, Value};
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 pub trait Configurator {
     fn get<'de, T: Deserialize<'de>>(&'de self, key: &'de str) -> Result<T, ConfigError>;
@@ -15,10 +15,20 @@ pub trait Configurator {
 }
 
 pub fn new(prefix: &str) -> Result<impl Configurator, ConfigError> {
-    Config::default()
-        .merge(config::File::with_name("config/config.yaml"))?
-        .merge(config::Environment::with_prefix(prefix).separator("_"))
-        .map(|c| c.to_owned())
+    let mut config_builder = Config::builder();
+    let paths = fs::read_dir("./config")
+        .map_err(|_| ConfigError::Message("Could not read directory at ./config".to_owned()))?
+        .filter_map(|result| result.ok())
+        .map(|de| de.file_name());
+    for path in paths {
+        config_builder = match path.to_str() {
+            Some(s) => config_builder.add_source(config::File::with_name(s)),
+            None => config_builder,
+        };
+    }
+    config_builder
+        .add_source(config::Environment::with_prefix(prefix).separator("_"))
+        .build()
 }
 
 impl Configurator for Config {
@@ -26,7 +36,7 @@ impl Configurator for Config {
         Config::get(self, key)
     }
     fn get_str(&self, key: &str) -> Result<String, ConfigError> {
-        Config::get_str(self, key)
+        Config::get_string(self, key)
     }
     fn get_int(&self, key: &str) -> Result<i64, ConfigError> {
         Config::get_int(self, key)
@@ -44,6 +54,6 @@ impl Configurator for Config {
         Config::get_array(self, key)
     }
     fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T, ConfigError> {
-        Config::try_into(self)
+        Config::try_deserialize(self)
     }
 }
