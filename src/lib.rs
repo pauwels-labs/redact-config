@@ -14,9 +14,9 @@ pub trait Configurator {
     fn try_into<'de, T: Deserialize<'de>>(self) -> Result<T, ConfigError>;
 }
 
-pub fn new(prefix: &str) -> Result<impl Configurator, ConfigError> {
+pub fn new(path: &str, prefix: &str) -> Result<impl Configurator, ConfigError> {
     let mut config_builder = Config::builder();
-    let paths = fs::read_dir("./config")
+    let paths = fs::read_dir(path)
         .map_err(|_| ConfigError::Message("Could not read directory at ./config".to_owned()))?
         .filter_map(|result| result.ok())
         .map(|de| de.path());
