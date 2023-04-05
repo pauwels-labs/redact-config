@@ -17,7 +17,7 @@ pub trait Configurator {
 pub fn new(path: &str, prefix: &str) -> Result<impl Configurator, ConfigError> {
     let mut config_builder = Config::builder();
     let paths = fs::read_dir(path)
-        .map_err(|_| ConfigError::Message("Could not read directory at ./config".to_owned()))?
+        .map_err(|_| ConfigError::Message(format!("Could not read directory at {}", path)))?
         .filter_map(|result| result.ok())
         .map(|de| de.path());
     for path in paths {
